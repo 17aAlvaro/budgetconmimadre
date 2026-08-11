@@ -1,70 +1,70 @@
 import { useState, useEffect, useMemo } from "react";
-
+import { supabase } from "./src/lib/supabaseClient";
 // ─────────────────────────────────────────────
 //  CONSTANTES
 // ─────────────────────────────────────────────
 const CATS = {
   income: [
-    { id: "nomina",    label: "Nómina",          icon: "💼", color: "#0ECB81" },
-    { id: "nomina2",   label: "Nómina pareja",    icon: "💼", color: "#0ECB81" },
-    { id: "extra",     label: "Ingresos extra",   icon: "⚡", color: "#F0B90B" },
-    { id: "freelance", label: "Freelance",        icon: "🖥️", color: "#7B61FF" },
-    { id: "inversion", label: "Inversiones",      icon: "📈", color: "#26A17B" },
-    { id: "alquiler",  label: "Alquiler cobrado", icon: "🏘️", color: "#0ECB81" },
-    { id: "subsidio",  label: "Ayuda / Subsidio", icon: "🏛️", color: "#61A8FF" },
-    { id: "otro_in",   label: "Otro ingreso",     icon: "➕", color: "#888"    },
+    { id: "nomina", label: "Nómina", icon: "💼", color: "#0ECB81" },
+    { id: "nomina2", label: "Nómina pareja", icon: "💼", color: "#0ECB81" },
+    { id: "extra", label: "Ingresos extra", icon: "⚡", color: "#F0B90B" },
+    { id: "freelance", label: "Freelance", icon: "🖥️", color: "#7B61FF" },
+    { id: "inversion", label: "Inversiones", icon: "📈", color: "#26A17B" },
+    { id: "alquiler", label: "Alquiler cobrado", icon: "🏘️", color: "#0ECB81" },
+    { id: "subsidio", label: "Ayuda / Subsidio", icon: "🏛️", color: "#61A8FF" },
+    { id: "otro_in", label: "Otro ingreso", icon: "➕", color: "#888" },
   ],
   expense: [
-    { id: "hipoteca",    label: "Hipoteca / Alquiler",    icon: "🏠", color: "#F6465D" },
-    { id: "comunidad",   label: "Comunidad / IBI",        icon: "🏢", color: "#F6465D" },
-    { id: "suministros", label: "Luz / Agua / Gas",       icon: "💡", color: "#F0B90B" },
-    { id: "internet",    label: "Internet / Móvil",       icon: "📡", color: "#F0B90B" },
-    { id: "super",       label: "Supermercado",           icon: "🛒", color: "#FF8C00" },
-    { id: "restaurante", label: "Restaurantes",           icon: "🍽️", color: "#FF8C00" },
-    { id: "gasolina",    label: "Gasolina",               icon: "⛽", color: "#61A8FF" },
-    { id: "transporte",  label: "Transporte público",     icon: "🚇", color: "#61A8FF" },
-    { id: "coche",       label: "Seguro / Coche",         icon: "🚗", color: "#61A8FF" },
-    { id: "salud",       label: "Salud / Farmacia",       icon: "💊", color: "#0ECB81" },
-    { id: "gimnasio",    label: "Gimnasio",               icon: "🏋️", color: "#0ECB81" },
-    { id: "educacion",   label: "Educación",              icon: "📚", color: "#7B61FF" },
-    { id: "ropa",        label: "Ropa",                   icon: "👗", color: "#FF6B9D" },
-    { id: "ocio",        label: "Ocio / Entretenimiento", icon: "🎬", color: "#F0B90B" },
-    { id: "viajes",      label: "Viajes",                 icon: "✈️", color: "#61A8FF" },
-    { id: "suscripciones",label:"Suscripciones",          icon: "📱", color: "#7B61FF" },
-    { id: "seguros",     label: "Seguros",                icon: "🛡️", color: "#888"    },
-    { id: "credito",     label: "Crédito / Préstamo",     icon: "🏦", color: "#F6465D" },
-    { id: "ahorro",      label: "Ahorro",                 icon: "💰", color: "#0ECB81" },
-    { id: "inversion_g", label: "Inversión",              icon: "📊", color: "#26A17B" },
-    { id: "impuestos",   label: "Impuestos / Tasas",      icon: "📋", color: "#F6465D" },
-    { id: "mascotas",    label: "Mascotas",               icon: "🐾", color: "#FF8C00" },
-    { id: "hogar",       label: "Hogar / Muebles",        icon: "🛋️", color: "#888"    },
-    { id: "regalos",     label: "Regalos",                icon: "🎁", color: "#FF6B9D" },
-    { id: "otro_ex",     label: "Otro gasto",             icon: "📤", color: "#555"    },
+    { id: "hipoteca", label: "Hipoteca / Alquiler", icon: "🏠", color: "#F6465D" },
+    { id: "comunidad", label: "Comunidad / IBI", icon: "🏢", color: "#F6465D" },
+    { id: "suministros", label: "Luz / Agua / Gas", icon: "💡", color: "#F0B90B" },
+    { id: "internet", label: "Internet / Móvil", icon: "📡", color: "#F0B90B" },
+    { id: "super", label: "Supermercado", icon: "🛒", color: "#FF8C00" },
+    { id: "restaurante", label: "Restaurantes", icon: "🍽️", color: "#FF8C00" },
+    { id: "gasolina", label: "Gasolina", icon: "⛽", color: "#61A8FF" },
+    { id: "transporte", label: "Transporte público", icon: "🚇", color: "#61A8FF" },
+    { id: "coche", label: "Seguro / Coche", icon: "🚗", color: "#61A8FF" },
+    { id: "salud", label: "Salud / Farmacia", icon: "💊", color: "#0ECB81" },
+    { id: "gimnasio", label: "Gimnasio", icon: "🏋️", color: "#0ECB81" },
+    { id: "educacion", label: "Educación", icon: "📚", color: "#7B61FF" },
+    { id: "ropa", label: "Ropa", icon: "👗", color: "#FF6B9D" },
+    { id: "ocio", label: "Ocio / Entretenimiento", icon: "🎬", color: "#F0B90B" },
+    { id: "viajes", label: "Viajes", icon: "✈️", color: "#61A8FF" },
+    { id: "suscripciones", label: "Suscripciones", icon: "📱", color: "#7B61FF" },
+    { id: "seguros", label: "Seguros", icon: "🛡️", color: "#888" },
+    { id: "credito", label: "Crédito / Préstamo", icon: "🏦", color: "#F6465D" },
+    { id: "ahorro", label: "Ahorro", icon: "💰", color: "#0ECB81" },
+    { id: "inversion_g", label: "Inversión", icon: "📊", color: "#26A17B" },
+    { id: "impuestos", label: "Impuestos / Tasas", icon: "📋", color: "#F6465D" },
+    { id: "mascotas", label: "Mascotas", icon: "🐾", color: "#FF8C00" },
+    { id: "hogar", label: "Hogar / Muebles", icon: "🛋️", color: "#888" },
+    { id: "regalos", label: "Regalos", icon: "🎁", color: "#FF6B9D" },
+    { id: "otro_ex", label: "Otro gasto", icon: "📤", color: "#555" },
   ],
 };
 
 const MONTHS = [
-  "Enero","Febrero","Marzo","Abril","Mayo","Junio",
-  "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre",
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
 ];
-const MONTHS_SHORT = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+const MONTHS_SHORT = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
 
 const ALL_CATS = [...CATS.income, ...CATS.expense];
-const getCat   = (id) => ALL_CATS.find((c) => c.id === id) || { label: id, icon: "•", color: "#888" };
-const mkey     = (y, m) => `${y}-${String(m + 1).padStart(2, "0")}`;
-const fmt      = (n, dec = 0) =>
+const getCat = (id) => ALL_CATS.find((c) => c.id === id) || { label: id, icon: "•", color: "#888" };
+const mkey = (y, m) => `${y}-${String(m + 1).padStart(2, "0")}`;
+const fmt = (n, dec = 0) =>
   new Intl.NumberFormat("es-ES", {
     style: "currency", currency: "EUR",
     minimumFractionDigits: dec, maximumFractionDigits: dec,
   }).format(n || 0);
-const fmtPct   = (n) => (n >= 0 ? "+" : "") + n.toFixed(1) + "%";
-const clamp    = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+const fmtPct = (n) => (n >= 0 ? "+" : "") + n.toFixed(1) + "%";
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const todayISO = () => new Date().toISOString().split("T")[0];
 
 // ─────────────────────────────────────────────
 //  PERSISTENCIA  (localStorage + backup JSON)
 // ─────────────────────────────────────────────
-const LS_DATA  = "budget_rev_data_v1";
+const LS_DATA = "budget_rev_data_v1";
 const LS_GOALS = "budget_rev_goals_v1";
 
 function lsLoad(key, fallback) {
@@ -72,16 +72,16 @@ function lsLoad(key, fallback) {
   catch { return fallback; }
 }
 function lsSave(key, value) {
-  try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch { }
 }
 
 // Exportar todo a JSON y forzar descarga
 function exportBackup(data, goals) {
   const payload = JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), data, goals }, null, 2);
   const blob = new Blob([payload], { type: "application/json" });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement("a");
-  a.href     = url;
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
   a.download = `presupuesto_backup_${new Date().toISOString().slice(0, 10)}.json`;
   a.click();
   URL.revokeObjectURL(url);
@@ -134,20 +134,20 @@ function Spark({ data = [], color = "#0ECB81", width = 80, height = 28 }) {
 
 /** Donut chart SVG */
 function Donut({ segments = [], size = 110 }) {
-  const r     = 38;
-  const cx    = size / 2;
-  const cy    = size / 2;
-  const circ  = 2 * Math.PI * r;
+  const r = 38;
+  const cx = size / 2;
+  const cy = size / 2;
+  const circ = 2 * Math.PI * r;
   const total = segments.reduce((s, x) => s + x.value, 0) || 1;
-  let offset  = 0;
+  let offset = 0;
   return (
     <svg width={size} height={size}>
       <circle cx={cx} cy={cy} r={r} fill="none" stroke="#1C1C2E" strokeWidth="12" />
       {segments.map((seg, i) => {
-        const pct  = seg.value / total;
+        const pct = seg.value / total;
         const dash = pct * circ;
-        const gap  = circ - dash;
-        const el   = (
+        const gap = circ - dash;
+        const el = (
           <circle
             key={i}
             cx={cx} cy={cy} r={r}
@@ -169,13 +169,13 @@ function Donut({ segments = [], size = 110 }) {
 /** Bar chart anual */
 function BarChart({ data = [], currentMonth = 0 }) {
   const maxVal = Math.max(...data.map((d) => Math.max(d.income, d.expense)), 1);
-  const H      = 72;
+  const H = 72;
   return (
     <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: H + 20 }}>
       {data.map((d, i) => {
         const isCur = i === currentMonth;
-        const incH  = (d.income  / maxVal) * H;
-        const expH  = (d.expense / maxVal) * H;
+        const incH = (d.income / maxVal) * H;
+        const expH = (d.expense / maxVal) * H;
         return (
           <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
             <div style={{ display: "flex", alignItems: "flex-end", gap: 1, height: H }}>
@@ -212,28 +212,28 @@ function Toast({ message }) {
 //  ESTILOS BASE
 // ─────────────────────────────────────────────
 const S = {
-  app:     { background: "#0A0A0F", minHeight: "100vh", color: "#fff", fontFamily: "'Inter', -apple-system, sans-serif", paddingBottom: 80 },
-  card:    { background: "#13131F", borderRadius: 16, padding: "16px 18px", marginBottom: 12 },
-  cardDk:  { background: "#0D0D1A", borderRadius: 16, padding: "16px 18px", marginBottom: 12, border: "1px solid #1E1E35" },
+  app: { background: "#0A0A0F", minHeight: "100vh", color: "#fff", fontFamily: "'Inter', -apple-system, sans-serif", paddingBottom: 80 },
+  card: { background: "#13131F", borderRadius: 16, padding: "16px 18px", marginBottom: 12 },
+  cardDk: { background: "#0D0D1A", borderRadius: 16, padding: "16px 18px", marginBottom: 12, border: "1px solid #1E1E35" },
   section: { fontSize: 12, color: "#888", marginBottom: 8, fontWeight: 500 },
-  input:   { width: "100%", background: "#1C1C2E", border: "1px solid #2A2A45", borderRadius: 10, color: "#fff", padding: "11px 14px", fontSize: 14, boxSizing: "border-box", outline: "none" },
-  pill:    (active, color = "#7B61FF") => ({
+  input: { width: "100%", background: "#1C1C2E", border: "1px solid #2A2A45", borderRadius: 10, color: "#fff", padding: "11px 14px", fontSize: 14, boxSizing: "border-box", outline: "none" },
+  pill: (active, color = "#7B61FF") => ({
     padding: "4px 12px", borderRadius: 20,
     border: `1px solid ${active ? color : "#222"}`,
     background: active ? color + "22" : "transparent",
     color: active ? color : "#666",
     fontSize: 12, cursor: "pointer", fontWeight: active ? 600 : 400, whiteSpace: "nowrap",
   }),
-  tabBtn:  (active) => ({
+  tabBtn: (active) => ({
     flex: 1, padding: "10px 4px", background: "none", border: "none",
     color: active ? "#fff" : "#444", fontSize: 11, cursor: "pointer",
     fontWeight: active ? 700 : 400, letterSpacing: "0.03em",
   }),
-  badge:   (color) => ({
+  badge: (color) => ({
     display: "inline-block", padding: "2px 7px", borderRadius: 8,
     background: color + "22", color, fontSize: 11, fontWeight: 600,
   }),
-  btn:     (col = "#7B61FF") => ({
+  btn: (col = "#7B61FF") => ({
     background: col, border: "none", borderRadius: 10, color: "#fff",
     padding: "13px 20px", fontSize: 15, fontWeight: 600, cursor: "pointer", width: "100%",
   }),
@@ -246,30 +246,70 @@ export default function App() {
   const now = new Date();
 
   // ── estado global ──
-  const [year,  setYear]  = useState(now.getFullYear());
+  const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth());
-  const [tab,   setTab]   = useState("home");
-  const [data,  setData]  = useState(() => lsLoad(LS_DATA,  {}));
+  const [tab, setTab] = useState("home");
+  const [data, setData] = useState(() => lsLoad(LS_DATA, {}));
   const [goals, setGoals] = useState(() => lsLoad(LS_GOALS, {}));
+  useEffect(() => {
+    async function loadTransactions() {
+      const { data: rows, error } = await supabase
+        .from("transactions")
+        .select("*")
+        .order("date", { ascending: false });
+
+      if (error) {
+        console.error("Error cargando movimientos desde Supabase:", error);
+        return;
+      }
+
+      const grouped = {};
+
+      rows.forEach((item) => {
+        const key = item.date.slice(0, 7);
+
+        if (!grouped[key]) {
+          grouped[key] = [];
+        }
+
+        grouped[key].push({
+          id: item.id,
+          type: item.type,
+          category: item.category,
+          amount: Number(item.amount),
+          description: item.description || "",
+          date: item.date,
+          person: item.person || "",
+          note: item.note || "",
+          recurring: item.recurring || false,
+          tags: item.tags || [],
+        });
+      });
+
+      setData(grouped);
+    }
+
+    loadTransactions();
+  }, []);
 
   // ── formulario ──
   const emptyForm = { type: "expense", category: "super", amount: "", description: "", date: todayISO(), note: "", recurring: false, tags: "" };
   const [showForm, setShowForm] = useState(false);
-  const [editId,   setEditId]   = useState(null);
-  const [form,     setForm]     = useState(emptyForm);
+  const [editId, setEditId] = useState(null);
+  const [form, setForm] = useState(emptyForm);
 
   // ── filtros movimientos ──
   const [filterType, setFilterType] = useState("all");
-  const [filterCat,  setFilterCat]  = useState("all");
+  const [filterCat, setFilterCat] = useState("all");
 
   // ── ui ──
-  const [toast,        setToast]        = useState(null);
-  const [showGoalInput,setShowGoalInput]= useState(false);
-  const [goalInput,    setGoalInput]    = useState("");
-  const [importError,  setImportError]  = useState("");
+  const [toast, setToast] = useState(null);
+  const [showGoalInput, setShowGoalInput] = useState(false);
+  const [goalInput, setGoalInput] = useState("");
+  const [importError, setImportError] = useState("");
 
   // persistencia automática
-  useEffect(() => { lsSave(LS_DATA,  data);  }, [data]);
+  useEffect(() => { lsSave(LS_DATA, data); }, [data]);
   useEffect(() => { lsSave(LS_GOALS, goals); }, [goals]);
 
   function showToast(msg, ms = 2500) {
@@ -278,11 +318,11 @@ export default function App() {
   }
 
   // ── datos del mes actual ──
-  const key     = mkey(year, month);
+  const key = mkey(year, month);
   const entries = useMemo(() => data[key] || [], [data, key]);
 
   const totals = useMemo(() => {
-    const income  = entries.filter((e) => e.type === "income" ).reduce((s, e) => s + e.amount, 0);
+    const income = entries.filter((e) => e.type === "income").reduce((s, e) => s + e.amount, 0);
     const expense = entries.filter((e) => e.type === "expense").reduce((s, e) => s + e.amount, 0);
     return { income, expense, balance: income - expense, txCount: entries.length };
   }, [entries]);
@@ -295,7 +335,7 @@ export default function App() {
 
   // gasto por día del mes
   const dailySpend = useMemo(() => {
-    const days  = new Date(year, month + 1, 0).getDate();
+    const days = new Date(year, month + 1, 0).getDate();
     const byDay = {};
     entries.forEach((e) => {
       if (e.type !== "expense") return;
@@ -308,20 +348,20 @@ export default function App() {
   // datos anuales
   const annualData = useMemo(() =>
     Array.from({ length: 12 }, (_, m) => {
-      const k  = mkey(year, m);
+      const k = mkey(year, m);
       const es = data[k] || [];
-      const income  = es.filter((e) => e.type === "income" ).reduce((s, e) => s + e.amount, 0);
+      const income = es.filter((e) => e.type === "income").reduce((s, e) => s + e.amount, 0);
       const expense = es.filter((e) => e.type === "expense").reduce((s, e) => s + e.amount, 0);
       return { income, expense, balance: income - expense };
     }),
-  [data, year]);
+    [data, year]);
 
   // mes anterior
-  const prevKey     = mkey(month === 0 ? year - 1 : year, month === 0 ? 11 : month - 1);
+  const prevKey = mkey(month === 0 ? year - 1 : year, month === 0 ? 11 : month - 1);
   const prevEntries = data[prevKey] || [];
-  const prevIncome  = prevEntries.filter((e) => e.type === "income" ).reduce((s, e) => s + e.amount, 0);
+  const prevIncome = prevEntries.filter((e) => e.type === "income").reduce((s, e) => s + e.amount, 0);
   const prevExpense = prevEntries.filter((e) => e.type === "expense").reduce((s, e) => s + e.amount, 0);
-  const incomeVsPrev  = prevIncome  > 0 ? ((totals.income  - prevIncome)  / prevIncome  * 100) : null;
+  const incomeVsPrev = prevIncome > 0 ? ((totals.income - prevIncome) / prevIncome * 100) : null;
   const expenseVsPrev = prevExpense > 0 ? ((totals.expense - prevExpense) / prevExpense * 100) : null;
 
   const avgMonthlyExpense = useMemo(() => {
@@ -330,27 +370,27 @@ export default function App() {
   }, [annualData]);
 
   const totalAnnualSaved = annualData.reduce((s, m) => s + Math.max(0, m.balance), 0);
-  const annualGoal       = goals["_annual"] || 0;
-  const annualProgress   = annualGoal > 0 ? clamp((totalAnnualSaved / annualGoal) * 100, 0, 100) : 0;
-  const savingsRate      = totals.income > 0 ? (totals.balance / totals.income) * 100 : 0;
+  const annualGoal = goals["_annual"] || 0;
+  const annualProgress = annualGoal > 0 ? clamp((totalAnnualSaved / annualGoal) * 100, 0, 100) : 0;
+  const savingsRate = totals.income > 0 ? (totals.balance / totals.income) * 100 : 0;
 
   const expenseByType = CATS.expense.filter((c) => byCat[c.id] > 0).sort((a, b) => (byCat[b.id] || 0) - (byCat[a.id] || 0));
-  const incomeByType  = CATS.income .filter((c) => byCat[c.id] > 0).sort((a, b) => (byCat[b.id] || 0) - (byCat[a.id] || 0));
-  const donutSegs     = expenseByType.slice(0, 6).map((c) => ({ value: byCat[c.id] || 0, color: c.color }));
+  const incomeByType = CATS.income.filter((c) => byCat[c.id] > 0).sort((a, b) => (byCat[b.id] || 0) - (byCat[a.id] || 0));
+  const donutSegs = expenseByType.slice(0, 6).map((c) => ({ value: byCat[c.id] || 0, color: c.color }));
 
-  const bestMonth  = annualData.reduce((b, m, i) => m.income > 0  && m.balance > (b ? b.balance : -Infinity) ? { ...m, i } : b, null);
-  const worstMonth = annualData.reduce((b, m, i) => m.expense > 0 && m.balance < (b ? b.balance :  Infinity) ? { ...m, i } : b, null);
+  const bestMonth = annualData.reduce((b, m, i) => m.income > 0 && m.balance > (b ? b.balance : -Infinity) ? { ...m, i } : b, null);
+  const worstMonth = annualData.reduce((b, m, i) => m.expense > 0 && m.balance < (b ? b.balance : Infinity) ? { ...m, i } : b, null);
 
-  const daysLeft         = Math.max(1, new Date(year, month + 1, 0).getDate() - now.getDate());
-  const dailyBudgetLeft  = totals.balance / daysLeft;
-  const spentToday       = dailySpend[now.getDate() - 1] || 0;
-  const avgDailySpend    = totals.expense / Math.max(1, now.getDate());
+  const daysLeft = Math.max(1, new Date(year, month + 1, 0).getDate() - now.getDate());
+  const dailyBudgetLeft = totals.balance / daysLeft;
+  const spentToday = dailySpend[now.getDate() - 1] || 0;
+  const avgDailySpend = totals.expense / Math.max(1, now.getDate());
 
   // filtrado de movimientos
   const filtered = useMemo(() => {
     let es = [...entries].sort((a, b) => (b.date || "").localeCompare(a.date || ""));
     if (filterType !== "all") es = es.filter((e) => e.type === filterType);
-    if (filterCat  !== "all") es = es.filter((e) => e.category === filterCat);
+    if (filterCat !== "all") es = es.filter((e) => e.category === filterCat);
     return es;
   }, [entries, filterType, filterCat]);
 
@@ -358,8 +398,8 @@ export default function App() {
   function changeMonth(dir) {
     let m = month + dir;
     let y = year;
-    if (m < 0)  { m = 11; y--; }
-    if (m > 11) { m = 0;  y++; }
+    if (m < 0) { m = 11; y--; }
+    if (m > 11) { m = 0; y++; }
     setMonth(m); setYear(y);
   }
 
@@ -377,28 +417,93 @@ export default function App() {
     });
     setEditId(item.id); setShowForm(true);
   }
-  function submitForm() {
+  async function submitForm() {
     const amount = parseFloat(form.amount);
+
     if (!amount || amount <= 0 || !form.date) return;
+
     const item = {
       id: editId || Date.now(),
-      type: form.type, category: form.category,
-      amount, description: form.description,
-      date: form.date, note: form.note,
+      type: form.type,
+      category: form.category,
+      amount,
+      description: form.description,
+      date: form.date,
+      note: form.note,
       recurring: form.recurring,
-      tags: form.tags.split(",").map((t) => t.trim()).filter(Boolean),
+      tags: form.tags
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean),
     };
-    setData((prev) => {
-      const es  = prev[key] || [];
-      const upd = editId ? es.map((e) => (e.id === editId ? item : e)) : [...es, item];
-      return { ...prev, [key]: upd };
-    });
-    setShowForm(false);
-    showToast(editId ? "Movimiento actualizado ✓" : "Movimiento añadido ✓");
+
+    try {
+      if (editId) {
+        // EDITAR MOVIMIENTO
+        const { error } = await supabase
+          .from("transactions")
+          .update({
+            type: item.type,
+            category: item.category,
+            amount: item.amount,
+            description: item.description,
+            date: item.date,
+            note: item.note,
+            recurring: item.recurring,
+            tags: item.tags,
+          })
+          .eq("id", editId);
+
+        if (error) throw error;
+
+      } else {
+        // CREAR MOVIMIENTO
+        const { error } = await supabase
+          .from("transactions")
+          .insert([item]);
+
+        if (error) throw error;
+      }
+
+      // Actualizar la interfaz
+      setData((prev) => {
+        const es = prev[key] || [];
+
+        const upd = editId
+          ? es.map((e) => (e.id === editId ? item : e))
+          : [...es, item];
+
+        return { ...prev, [key]: upd };
+      });
+
+      setShowForm(false);
+      showToast(editId ? "Movimiento actualizado ✓" : "Movimiento añadido ✓");
+
+    } catch (error) {
+      console.error("Error guardando movimiento en Supabase:", error);
+      showToast("Error guardando el movimiento");
+    }
   }
-  function deleteItem(id) {
-    setData((prev) => ({ ...prev, [key]: (prev[key] || []).filter((e) => e.id !== id) }));
-    showToast("Eliminado");
+  async function deleteItem(id) {
+    try {
+      const { error } = await supabase
+        .from("transactions")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+
+      setData((prev) => ({
+        ...prev,
+        [key]: (prev[key] || []).filter((e) => e.id !== id),
+      }));
+
+      showToast("Eliminado ✓");
+
+    } catch (error) {
+      console.error("Error eliminando movimiento de Supabase:", error);
+      showToast("Error eliminando el movimiento");
+    }
   }
 
   // ── importar backup ──
@@ -441,7 +546,7 @@ export default function App() {
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <button onClick={() => changeMonth(-1)} style={{ background: "#ffffff10", border: "none", color: "#888", width: 26, height: 26, borderRadius: 7, cursor: "pointer", fontSize: 15 }}>‹</button>
               <span style={{ fontSize: 14, fontWeight: 700, color: "#ccc", minWidth: 130, textAlign: "center" }}>{MONTHS[month]} {year}</span>
-              <button onClick={() => changeMonth(1)}  style={{ background: "#ffffff10", border: "none", color: "#888", width: 26, height: 26, borderRadius: 7, cursor: "pointer", fontSize: 15 }}>›</button>
+              <button onClick={() => changeMonth(1)} style={{ background: "#ffffff10", border: "none", color: "#888", width: 26, height: 26, borderRadius: 7, cursor: "pointer", fontSize: 15 }}>›</button>
             </div>
           </div>
           <button onClick={openAdd} style={{ background: "#7B61FF", border: "none", borderRadius: 12, color: "#fff", padding: "8px 18px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
@@ -463,8 +568,8 @@ export default function App() {
         {/* ingresos / gastos */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, position: "relative" }}>
           {[
-            { label: "Ingresos",  val: totals.income,  prev: incomeVsPrev,  color: "#0ECB81", good: (p) => p >= 0 },
-            { label: "Gastos",    val: totals.expense, prev: expenseVsPrev, color: "#F6465D", good: (p) => p <= 0 },
+            { label: "Ingresos", val: totals.income, prev: incomeVsPrev, color: "#0ECB81", good: (p) => p >= 0 },
+            { label: "Gastos", val: totals.expense, prev: expenseVsPrev, color: "#F6465D", good: (p) => p <= 0 },
           ].map((c) => (
             <div key={c.label} style={{ background: "#ffffff08", borderRadius: 12, padding: "12px 14px", border: "1px solid #ffffff08" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
@@ -491,9 +596,9 @@ export default function App() {
             {/* métricas rápidas */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
               {[
-                { label: "Gasto hoy",      val: fmt(spentToday),                                             sub: "día actual" },
-                { label: "Media diaria",   val: fmt(avgDailySpend),                                          sub: "este mes" },
-                { label: "Disponible/día", val: dailyBudgetLeft > 0 ? fmt(dailyBudgetLeft) : "—",            sub: `${daysLeft}d restantes`, col: dailyBudgetLeft > 0 ? "#0ECB81" : "#F6465D" },
+                { label: "Gasto hoy", val: fmt(spentToday), sub: "día actual" },
+                { label: "Media diaria", val: fmt(avgDailySpend), sub: "este mes" },
+                { label: "Disponible/día", val: dailyBudgetLeft > 0 ? fmt(dailyBudgetLeft) : "—", sub: `${daysLeft}d restantes`, col: dailyBudgetLeft > 0 ? "#0ECB81" : "#F6465D" },
               ].map((s) => (
                 <div key={s.label} style={{ ...S.card, padding: "12px", marginBottom: 0, textAlign: "center" }}>
                   <div style={{ fontSize: 9, color: "#555", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>{s.label}</div>
@@ -549,9 +654,9 @@ export default function App() {
               <div style={S.card}>
                 <div style={S.section}>Top categorías de gasto</div>
                 {expenseByType.slice(0, 6).map((cat) => {
-                  const amt      = byCat[cat.id] || 0;
-                  const pct      = totals.expense > 0 ? (amt / totals.expense) * 100 : 0;
-                  const goalAmt  = goals[cat.id] || 0;
+                  const amt = byCat[cat.id] || 0;
+                  const pct = totals.expense > 0 ? (amt / totals.expense) * 100 : 0;
+                  const goalAmt = goals[cat.id] || 0;
                   const overGoal = goalAmt > 0 && amt > goalAmt;
                   return (
                     <div key={cat.id} style={{ marginBottom: 12 }}>
@@ -613,7 +718,7 @@ export default function App() {
           <div style={{ paddingTop: 16 }}>
             {/* filtros tipo */}
             <div style={{ display: "flex", gap: 6, marginBottom: 10, overflowX: "auto", paddingBottom: 2 }}>
-              {[["all","Todo"],["income","Ingresos"],["expense","Gastos"]].map(([v, l]) => (
+              {[["all", "Todo"], ["income", "Ingresos"], ["expense", "Gastos"]].map(([v, l]) => (
                 <button key={v} onClick={() => setFilterType(v)} style={S.pill(filterType === v)}>{l}</button>
               ))}
             </div>
@@ -630,9 +735,9 @@ export default function App() {
             {/* resumen filtrado */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
               {[
-                { label: "Registros",  val: String(filtered.length), col: "#fff" },
-                { label: "Entradas",   val: fmt(filtered.filter((e) => e.type === "income" ).reduce((s, e) => s + e.amount, 0)), col: "#0ECB81" },
-                { label: "Salidas",    val: fmt(filtered.filter((e) => e.type === "expense").reduce((s, e) => s + e.amount, 0)), col: "#F6465D" },
+                { label: "Registros", val: String(filtered.length), col: "#fff" },
+                { label: "Entradas", val: fmt(filtered.filter((e) => e.type === "income").reduce((s, e) => s + e.amount, 0)), col: "#0ECB81" },
+                { label: "Salidas", val: fmt(filtered.filter((e) => e.type === "expense").reduce((s, e) => s + e.amount, 0)), col: "#F6465D" },
               ].map((s) => (
                 <div key={s.label} style={{ ...S.cardDk, padding: "10px 12px", marginBottom: 0 }}>
                   <div style={{ fontSize: 9, color: "#555", textTransform: "uppercase", marginBottom: 3 }}>{s.label}</div>
@@ -688,12 +793,12 @@ export default function App() {
               <div style={S.section}>Resumen anual {year}</div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 {[
-                  { label: "Total ingresos",     val: fmt(annualData.reduce((s, m) => s + m.income,  0)), color: "#0ECB81" },
-                  { label: "Total gastos",        val: fmt(annualData.reduce((s, m) => s + m.expense, 0)), color: "#F6465D" },
-                  { label: "Total ahorrado",      val: fmt(totalAnnualSaved),                               color: "#7B61FF" },
-                  { label: "Media mensual gasto", val: fmt(avgMonthlyExpense),                              color: "#F0B90B" },
-                  { label: "Mejor mes",           val: bestMonth  ? MONTHS_SHORT[bestMonth.i]  : "—",      color: "#0ECB81" },
-                  { label: "Peor mes",            val: worstMonth ? MONTHS_SHORT[worstMonth.i] : "—",      color: "#F6465D" },
+                  { label: "Total ingresos", val: fmt(annualData.reduce((s, m) => s + m.income, 0)), color: "#0ECB81" },
+                  { label: "Total gastos", val: fmt(annualData.reduce((s, m) => s + m.expense, 0)), color: "#F6465D" },
+                  { label: "Total ahorrado", val: fmt(totalAnnualSaved), color: "#7B61FF" },
+                  { label: "Media mensual gasto", val: fmt(avgMonthlyExpense), color: "#F0B90B" },
+                  { label: "Mejor mes", val: bestMonth ? MONTHS_SHORT[bestMonth.i] : "—", color: "#0ECB81" },
+                  { label: "Peor mes", val: worstMonth ? MONTHS_SHORT[worstMonth.i] : "—", color: "#F6465D" },
                 ].map((m) => (
                   <div key={m.label} style={{ background: "#0D0D1A", borderRadius: 10, padding: "10px 12px" }}>
                     <div style={{ fontSize: 9, color: "#555", textTransform: "uppercase", marginBottom: 3 }}>{m.label}</div>
@@ -734,7 +839,7 @@ export default function App() {
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
                   <thead>
                     <tr style={{ borderBottom: "1px solid #1A1A2E" }}>
-                      {["Mes","Ingresos","Gastos","Balance","Ahorro%"].map((h) => (
+                      {["Mes", "Ingresos", "Gastos", "Balance", "Ahorro%"].map((h) => (
                         <th key={h} style={{ padding: "6px 4px", color: "#555", fontWeight: 600, textAlign: h === "Mes" ? "left" : "right", fontSize: 10 }}>{h}</th>
                       ))}
                     </tr>
@@ -742,11 +847,11 @@ export default function App() {
                   <tbody>
                     {annualData.map((row, i) => {
                       const isCur = i === month;
-                      const rate  = row.income > 0 ? (row.balance / row.income) * 100 : 0;
+                      const rate = row.income > 0 ? (row.balance / row.income) * 100 : 0;
                       return (
                         <tr key={i} onClick={() => { setMonth(i); setTab("home"); }} style={{ borderBottom: "1px solid #0F0F1A", cursor: "pointer", background: isCur ? "#7B61FF11" : "transparent" }}>
                           <td style={{ padding: "7px 4px", fontWeight: isCur ? 700 : 400, color: isCur ? "#7B61FF" : "#ccc" }}>{MONTHS_SHORT[i]}</td>
-                          <td style={{ padding: "7px 4px", textAlign: "right", color: "#0ECB81" }}>{row.income  > 0 ? fmt(row.income)  : "—"}</td>
+                          <td style={{ padding: "7px 4px", textAlign: "right", color: "#0ECB81" }}>{row.income > 0 ? fmt(row.income) : "—"}</td>
                           <td style={{ padding: "7px 4px", textAlign: "right", color: "#F6465D" }}>{row.expense > 0 ? fmt(row.expense) : "—"}</td>
                           <td style={{ padding: "7px 4px", textAlign: "right", fontWeight: 600, color: row.balance >= 0 ? "#0ECB81" : "#F6465D" }}>
                             {(row.income > 0 || row.expense > 0) ? fmt(row.balance) : "—"}
@@ -768,7 +873,7 @@ export default function App() {
                 <div style={S.section}>Evolución por categoría (año)</div>
                 {expenseByType.slice(0, 8).map((cat) => {
                   const sparkData = Array.from({ length: 12 }, (_, mi) => {
-                    const k  = mkey(year, mi);
+                    const k = mkey(year, mi);
                     const es = data[k] || [];
                     return es.filter((e) => e.category === cat.id).reduce((s, e) => s + e.amount, 0);
                   });
@@ -882,10 +987,10 @@ export default function App() {
       {/* ══ BOTTOM NAV ════════════════════════════════════════════════════ */}
       <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "#0A0A0F", borderTop: "1px solid #1A1A2E", display: "flex", padding: "6px 0 4px", zIndex: 50 }}>
         {[
-          { id: "home",      icon: "⊞", label: "Inicio"   },
-          { id: "txns",      icon: "↕", label: "Gastos"   },
+          { id: "home", icon: "⊞", label: "Inicio" },
+          { id: "txns", icon: "↕", label: "Gastos" },
           { id: "analytics", icon: "◎", label: "Análisis" },
-          { id: "settings",  icon: "◈", label: "Ajustes"  },
+          { id: "settings", icon: "◈", label: "Ajustes" },
         ].map((t) => (
           <button key={t.id} onClick={() => setTab(t.id)} style={S.tabBtn(tab === t.id)}>
             <div style={{ fontSize: 18, marginBottom: 1 }}>{t.icon}</div>
@@ -912,7 +1017,7 @@ export default function App() {
 
             {/* tipo */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 16 }}>
-              {[["expense","Gasto","#F6465D"],["income","Ingreso","#0ECB81"]].map(([t, l, c]) => (
+              {[["expense", "Gasto", "#F6465D"], ["income", "Ingreso", "#0ECB81"]].map(([t, l, c]) => (
                 <button
                   key={t}
                   onClick={() => setForm((f) => ({ ...f, type: t, category: t === "expense" ? "super" : "nomina" }))}
